@@ -15,42 +15,38 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/people")
 public class PersonController {
 
-    private Person person;
-    private List<Person> people = new ArrayList<>();
+    private PersonRepository repository;
+
+    @Autowired
+    public PersonController(PersonRepository repository) {
+        this.repository = repository;
+    }
 
     @RequestMapping(method = RequestMethod.POST)
     public Person createPerson(@RequestBody Person p) {
-        people.add(p);
-        return p;
+        return repository.save(p);
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public Person getPerson(@PathVariable Long id) {
-        for(Person x : people) {
-            if(x.getId().equals(id)) {
-                return x;
-            }
-        }
-        return null;
+        return repository.findOne(id);
     }
 
     @RequestMapping(method = RequestMethod.GET)
     public List<Person> getPersonList() {
-        return people;
+        return (List<Person>) repository.findAll();
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
-    public Person updatPerson(@PathVariable value = /"{id}" , @RequestBody Person p) {
-        for(Person x : people) {
-            if(x.getId().equals(id)) {
-                return x;
-            }
-        }
-        return null;
+    public Person updatePerson(@PathVariable Long id, @RequestBody Person p) {
+        Person x = repository.findOne(id);
+        x.setLastName(p.getLastName());
+        x.setFirstName(p.getFirstName());
+        return repository.save(x);
     }
 
-    @RequestMapping(method = RequestMethod.DELETE)
-    public void deletePerson(@PathVariable int id) {
-
+    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+    public void deletePerson(@PathVariable Long id) {
+        repository.delete(id);
     }
 }
